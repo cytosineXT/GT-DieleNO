@@ -5,7 +5,7 @@ This folder contains compact standalone PyTorch definitions of the GT-DieleNO ne
 ## Files
 
 - `gtdieleno.py`: GT-DieleNO model definition, including the tetrahedral GNO encoder, Transolver-style latent mixer, FiLM conditioning, and DeepONet-style query decoder.
-- `gtcdiele.py`: conference GTCDiele baseline network definition, including the tetrahedral encoder, attention pooling, full-map MLP decoder, and optional smoothing layer.
+- `gtcdiele.py`: conference GTCDiele baseline network definition, including the tetrahedral encoder, attention pooling, full-map MLP decoder, and optional smoothing layer. This standalone file is architecture-compatible with the `GTC_Tet_RCS_Model` used for the Table I conference-baseline reproduction.
 - `requirements.txt`: minimal dependency note for running the standalone module.
 - `cstpy/`: CST Studio Suite 2025 helper snippets and validation utilities aligned with the simulation settings stated in the paper.
 
@@ -71,6 +71,9 @@ print(count_parameters(model))
 - output: `[1, Q, 1]` predicted scalar far-field response in the learning target domain.
 
 Both network files are written as plain PyTorch modules and do not require `torch_geometric`.
+
+The `gtcdiele.py` release keeps the same default constructor used in the paper's reproduction runs:
+`GTC_Tet_RCS_Model(dim_coor_embed=64, latent_dim=256, middim=256)`. Its default state-dict keys, tensor shapes, parameter count, and full-map forward output have been checked against the conference-code network used in our experiments.
 
 ## Smoke Test
 
