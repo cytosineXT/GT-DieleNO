@@ -1,10 +1,11 @@
 # GT-DieleNO Code Release
 
-This folder contains a compact standalone PyTorch definition of the GT-DieleNO network architecture used in the paper, plus paper-aligned CST helper code in `cstpy`.
+This folder contains compact standalone PyTorch definitions of the GT-DieleNO network architecture used in the paper and the earlier conference GTCDiele baseline network, plus paper-aligned CST helper code in `cstpy`.
 
 ## Files
 
 - `gtdieleno.py`: GT-DieleNO model definition, including the tetrahedral GNO encoder, Transolver-style latent mixer, FiLM conditioning, and DeepONet-style query decoder.
+- `gtcdiele.py`: conference GTCDiele baseline network definition, including the tetrahedral encoder, attention pooling, full-map MLP decoder, and optional smoothing layer.
 - `requirements.txt`: minimal dependency note for running the standalone module.
 - `cstpy/`: CST Studio Suite 2025 helper snippets and validation utilities aligned with the simulation settings stated in the paper.
 
@@ -43,6 +44,23 @@ print(pred.shape)          # [1, Q, 1]
 print(count_parameters(model))
 ```
 
+Conference GTCDiele baseline:
+
+```python
+import torch
+from gtcdiele import GTCDiele, count_parameters
+
+model = GTCDiele()
+
+T = 1024
+tetra_features = torch.randn(1, T, 21)
+in_em = torch.tensor([[40.0, 105.0, 4.25]])  # incident theta, incident phi, frequency
+
+pred_map = model(tetra_features, in_em, smooth=True)
+print(pred_map.shape)      # [1, 360, 720]
+print(count_parameters(model))
+```
+
 ## Interface
 
 - `tetra_features`: `[1, T, 11]` conditioned tetrahedral-cell features.
@@ -52,13 +70,14 @@ print(count_parameters(model))
 - `tetra_quad_weights`: optional `[1, T]` volume/quadrature weights.
 - output: `[1, Q, 1]` predicted scalar far-field response in the learning target domain.
 
-The implementation is written as a plain PyTorch module and does not require `torch_geometric`.
+Both network files are written as plain PyTorch modules and do not require `torch_geometric`.
 
 ## Smoke Test
 
 ```powershell
 pip install -r requirements.txt
 python .\gtdieleno.py
+python .\gtcdiele.py
 ```
 
-After PyTorch is installed, the command runs a small CPU forward pass and prints the output shape and parameter count.
+After PyTorch is installed, each command runs a small CPU forward pass and prints the output shape and parameter count. The `gtcdiele.py` smoke test uses a reduced decoder size to keep the test lightweight; the default `GTCDiele()` constructor keeps the conference full-map `360 x 720` output setting.
